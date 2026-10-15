@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.function.Supplier;
 
 /**
  * Parses CLI input and dispatches to {@link UrlShortener}.
@@ -48,24 +47,17 @@ public class CommandHandler {
                 if (parts.length != 2) {
                     return "Usage: shorten <url>";
                 }
-                return call(() -> shortener.shorten(parts[1]));
+                return shortener.shorten(parts[1]);
             case "resolve":
                 if (parts.length != 2) {
                     return "Usage: resolve <code>";
                 }
-                return call(() -> shortener.resolve(parts[1]));
+                return shortener.resolve(parts[1])
+                        .orElse("Error: unknown code '" + parts[1] + "'");
             case "exit":
                 return "Usage: exit";
             default:
                 return "Error: unknown command '" + command + "'. " + HELP;
-        }
-    }
-
-    private static String call(Supplier<String> action) {
-        try {
-            return action.get();
-        } catch (UnsupportedOperationException e) {
-            return "Error: " + e.getMessage();
         }
     }
 }

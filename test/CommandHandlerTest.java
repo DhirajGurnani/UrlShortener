@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -25,9 +26,9 @@ class CommandHandlerTest {
         }
 
         @Override
-        public String resolve(String shortCode) {
+        public Optional<String> resolve(String shortCode) {
             resolvedWith = shortCode;
-            return "https://example.com";
+            return shortCode.equals("abc") ? Optional.of("https://example.com") : Optional.empty();
         }
     }
 
@@ -100,10 +101,17 @@ class CommandHandlerTest {
     }
 
     @Test
-    void unimplementedOperationIsReportedNotThrown() {
+    void resolveUnknownCodeGivesError() {
+        assertEquals("Error: unknown code 'zzz'", handler.handle("resolve zzz"));
+        assertEquals("zzz", fake.resolvedWith);
+    }
+
+    @Test
+    void shortenThenResolveWithRealShortener() {
         CommandHandler real = new CommandHandler(new UrlShortener());
-        assertEquals("Error: shorten is not implemented yet", real.handle("shorten https://example.com"));
-        assertEquals("Error: resolve is not implemented yet", real.handle("resolve abc"));
+
+        assertEquals("1", real.handle("shorten https://example.com"));
+        assertEquals("https://example.com", real.handle("resolve 1"));
     }
 
     @Test
