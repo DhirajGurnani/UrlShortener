@@ -40,6 +40,16 @@ class UrlShortenerTest {
     }
 
     @Test
+    void codesAreCaseSensitive() {
+        for (int i = 1; i <= 10; i++) {
+            shortener.shorten("https://example.com/" + i);
+        }
+
+        assertEquals(Optional.of("https://example.com/10"), shortener.resolve("a"));
+        assertEquals(Optional.empty(), shortener.resolve("A"));
+    }
+
+    @Test
     void unknownCodeResolvesToEmpty() {
         assertEquals(Optional.empty(), shortener.resolve("1"));
     }
